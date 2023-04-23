@@ -30,3 +30,19 @@ class DeactivateOrderView(APIView):
         order.save()
 
         return Response({"msg": "Order successfully deactivated"}, status=201)
+
+
+class OrdersListView(APIView):
+
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        orders = self.get_queryset(**kwargs)
+        serializer = self.serializer_class(orders, many=True)
+        return Response(serializer.data, status=200)
+
+    def get_queryset(self, **kwargs):
+        return self.queryset.filter(
+            start_date__gte=kwargs["start_date"], embargo_date__lte=kwargs["embargo_date"]
+        )
