@@ -29,9 +29,7 @@ class InventoryListCreateView(APIView):
         return Response(serializer.data, status=201)
 
     def get(self, request: Request, *args, **kwargs) -> Response:
-        breakpoint()
         serializer = self.serializer_class(self.get_queryset(), many=True)
-
         return Response(serializer.data, status=200)
 
     def get_queryset(self):

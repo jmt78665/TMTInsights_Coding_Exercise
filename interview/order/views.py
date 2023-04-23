@@ -18,6 +18,22 @@ class OrderTagListCreateView(generics.ListCreateAPIView):
     serializer_class = OrderTagSerializer
 
 
+class OrderListByTagNameView(APIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        tags = request.data.get("tags", [])
+        if len(tags) < 1:
+            return Response({"error": "Need atleast one tag"}, status=400)
+        orders = self.get_queryset(tags)
+        serializer = self.serializer_class(orders, many=True)
+        return Response(serializer.data, status=200)
+
+    def get_queryset(self, tags):
+        return self.queryset.filter(tags__name__in=tags)
+
+
 class DeactivateOrderView(APIView):
 
     def patch(self, request: Request, *args, **kwargs) -> Response:
