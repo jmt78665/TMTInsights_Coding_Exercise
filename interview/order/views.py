@@ -31,7 +31,20 @@ class OrderListByTagNameView(APIView):
         return Response(serializer.data, status=200)
 
     def get_queryset(self, tags):
-        return self.queryset.filter(tags__name__in=tags)
+        return self.queryset.filter(tags__name__in=tags).distinct()
+
+
+class ListTagsOnOrder(APIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderTagSerializer
+
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        order = self.get_queryset(id=kwargs['id'])
+        serializer = self.serializer_class(order.tags, many=True)
+        return Response(serializer.data, status=200)
+
+    def get_queryset(self, **kwargs):
+        return self.queryset.get(**kwargs)
 
 
 class DeactivateOrderView(APIView):
